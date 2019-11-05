@@ -1,218 +1,217 @@
-data segment
+Data Segment
+	msg1 db 10,13, "**MAIN MENU** $"
+	msg2 db 10,13, "1. Addition $"
+	msg3 db 10,13, "2. Subtraction $"
+	msg4 db 10,13, "3. Exit $"
+	msg5 db 10,13, "Enter your choice $"
+	choice db ?
+	msg6 db 10,13, "Enter First Number: $"
+	num1 dw ?
+	msg7 db 10,13, "Enter Second Number: $"
+	num2 dw ?
+	msg8 db 10,13, "Addition is: $"
+	msg9 db 10,13, "Subtraction is: $"
+	res dw ?
+Data Ends
+Code Segment
+	Assume CS: Code, DS: Data
 
-msg1 db 10,13, "Enter your choice: $"
-msg2 db 10,13, "1.Addition $"
-msg3 db 10,13, "2.Subtraction $"
-msg4 db 10,13, "3.Exit $"
-msg5 db 10,13, "Enter the number: $"
-msg6 db 10,13, "The result is: $"
-msg7 db 10,13, "$"
+	start:
 
-result dw ?
-choice db ?
-num1 dw ?
-num2 dw ?
-copy db ?
+		mov ax, data
+		mov ds, ax
 
-data ends
+		loopMenu:
 
+			mov dx, offset msg1
+			mov ah, 09h
+			int 21h
 
-code segment
+			mov dx, offset msg2
+			mov ah, 09h
+			int 21h
 
-assume cs:code, ds:data
-start:
+			mov dx, offset msg3
+			mov ah, 09h
+			int 21h
 
-    mov ax,data
-    mov ds, ax
-    
-    mov dx, offset msg5 
-    mov ah, 09h
-    int 21h
-    
-    
-    ;Number One
-   
-    call input                  ; Upper nibble
-    rol al, 04h
-    mov copy, al
-    mov bl,al
-    
-    call input
-    mov bl, copy
-    add bl,al
-    mov bh, bl
-    
-    call input                  ; Lower nibble
-    rol al, 04h
-    mov copy, al
-    mov bl,al
-  
-    call input
-    mov bl, copy
-    add bl,al                   ; first 16bit number stored in reg BX
-    mov num1, bx
-    
-    
-    
-    
-    mov dx, offset msg5 
-    mov ah, 09h
-    int 21h
-    
-    
-    ;Number Two
-   
-    call input                  ; Upper nibble
-    rol al, 04h
-    mov copy, al
-    mov bl,al
-    
-    call input
-    mov bl, copy
-    add bl,al
-    mov bh, bl
-    
-    call input                  ; Lower nibble
-    rol al, 04h
-    mov copy, al
-    mov bl,al
-  
-    call input
-    mov bl, copy
-    add bl,al                   ; first 16bit number stored in reg BX
-    mov num2, bx
-    
-    
-    
-    
-    menu:
-    ;displaying message
-    mov dx, offset msg1
-    mov ah, 09h
-    int 21h
+			mov dx, offset msg4
+			mov ah, 09h
+			int 21h
 
-    mov dx, offset msg2
-    mov ah, 09h
-    int 21h
+			mov dx, offset msg5
+			mov ah, 09h
+			int 21h
 
-    mov dx, offset msg3
-    mov ah, 09h
-    int 21h
+			; taking choice
 
-    mov dx, offset msg4
-    mov ah, 09h
-    int 21h
+			mov ah, 01h
+			int 21h
+			Call input
+			mov choice, al
 
-    mov dx, offset msg7 
-    mov ah, 09h
-    int 21h
+			cmp al, 03h						; compare with exit case
+			jnz labelChoice
+			mov ah, 4ch
+			int 21h
 
-    call input
-    cmp al, 03h
-    jnz addition
-    
-    exit:  
-    
-            mov ah, 4ch
-            int 21h
-    
-    addition:
-            cmp al, 01h        
-            jnz subtraction
-            
-            mov bx, num1
-            mov cx, num2
-            
-            add bx, cx
-            mov result , bx
-            
-            mov dx, offset msg6         ; Displaying the ouput 
-            mov ah, 09h
-            int 21h
-            
-            mov bx,result                
-            and bx, 0F000h              
-            ror bx, 0Ch
-            call output
+			labelChoice:
 
-            mov bx, result
-            and bx, 0F00h
-            ror bx, 08h
-            call output
+				mov dx, offset msg6
+				mov ah, 09h
+				int 21h
 
-            mov bx, result
-            and bx, 00F0h
-            ror bx, 04h
-            call output
+				; taking 1st input
 
-            mov bx, result
-            and bx, 000Fh
-            call output
-            
-            jmp menu
+				mov ah, 01h					; taking 1st digit
+				int 21h
+				Call input
+				mov ah, 00h
+				rol ax, 12
+				mov bx, ax
 
-    subtraction:    
-            cmp al, 02h
-            jnz exit
-            
-            mov bx, num1
-            mov cx, num2
-            
-            sub bx, cx
-            mov result , bx
-            
-            mov dx, offset msg6         ; Displaying the ouput 
-            mov ah, 09h
-            int 21h
-            
-            mov bx,result                
-            and bx, 0F000h              
-            ror bx, 0Ch
-            call output
+				mov ah, 01h					; taking 2nd digit
+				int 21h
+				Call input
+				mov ah, 00h
+				rol ax, 8
+				add bx, ax
 
-            mov bx, result
-            and bx, 0F00h
-            ror bx, 08h
-            call output
+				mov ah, 01h					; taking 3rd digit
+				int 21h
+				Call input
+				mov ah, 00h
+				rol ax, 4
+				add bx, ax
 
-            mov bx, result
-            and bx, 00F0h
-            ror bx, 04h
-            call output
+				mov ah, 01h					; taking 4th digit
+				int 21h
+				Call input
+				mov ah, 00h
+				add bx, ax
 
-            mov bx, result
-            and bx, 000Fh
-            call output
-    
-            jmp menu
-    
-input proc
+				mov num1, bx
 
-    mov ah, 01h
-    int 21h
-    
-    cmp al, 41h
-    jc X
-    sub al, 07h
-    X:
-    sub al, 30h
-ret
-endp
+				mov dx, offset msg7
+				mov ah, 09h
+				int 21h
 
-output proc
-    
-    cmp bl, 0Ah
-    jc Y
-    add bl, 07h
-    Y:
-    add bl, 30h
-    
-    mov dl,bl
-    mov ah, 02h
-    int 21h
-ret
-endp
+				; taking 2nd input
 
+				mov ah, 01h					; taking 1st digit
+				int 21h
+				Call input
+				mov ah, 00h
+				rol ax, 12
+				mov cx, ax
 
-code ends
-end start
+				mov ah, 01h					; taking 2nd digit
+				int 21h
+				Call input
+				mov ah, 00h
+				rol ax, 8
+				add cx, ax
+
+				mov ah, 01h					; taking 3rd digit
+				int 21h
+				Call input
+				mov ah, 00h
+				rol ax, 4
+				add cx, ax
+
+				mov ah, 01h					; taking 4th digit
+				int 21h
+				Call input
+				mov ah, 00h
+				add cx, ax
+
+				cmp choice, 01h
+				jnz labelSub				; check if addition or subtraction choice is made
+				
+				add bx, cx
+				mov res, bx
+
+				mov dx, offset msg8
+				mov ah, 09h
+				int 21h
+
+				; displaying output
+
+				and bx, 0f000h
+				ror bx, 0ch
+				Call output
+
+				mov bx, res
+				and bx, 00f00h
+				ror bx, 08h
+				Call output
+
+				mov bx, res
+				and bx, 000f0h
+				ror bx, 04h
+				Call output
+
+				mov bx, res
+				and bx, 0000fh
+				Call output
+
+				jmp loopMenu
+
+				labelSub:
+					sub bx, cx
+					mov res, bx
+
+					mov dx, offset msg9
+					mov ah, 09h
+					int 21h
+
+					; dsplaying output
+
+					and bx, 0f000h
+					ror bx, 0ch
+					Call output
+
+					mov bx, res
+					and bx, 00f00h
+					ror bx, 08h
+					Call output
+
+					mov bx, res
+					and bx, 000f0h
+					ror bx, 04h
+					Call output
+
+					mov bx, res
+					and bx, 0000fh
+					Call output
+
+					jmp loopMenu
+
+		input proc
+			cmp al, 41h
+			jc labelInp
+			sub al, 07h
+
+			labelInp:
+				sub al, 30h
+
+			ret
+			endp
+
+		output proc
+			cmp bl, 0ah
+			jc labelOut
+			add bl, 07h
+
+			labelOut:
+				add bl, 30h
+
+			mov dl, bl
+			mov ah, 02h
+			int 21h
+
+			ret 
+			endp
+
+Code Ends
+	end start
