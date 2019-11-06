@@ -3,22 +3,22 @@
 #include<conio.h>
 void main()
 {
-	int len=0,c=0,arr[100],sum=0,var=0;
+	int len=0,i=0,arr[100],sum=0,var=0;
 	float avg=0;
 	printf("\nHow many elements ?\n");
 	scanf("%d",&len);
-	for(c=0;c<len;c++)
+	for(i=0;i<len;i++)
 	{
 		printf("\nEnter the number:\t");
-		scanf("%d",&arr[c]);
+		scanf("%d",&arr[i]);
 	}
-	c=0;
+	i=0;
 	asm mov cx,len;
 	find:
-	var=arr[c];
+	var=arr[i];
 	asm mov ax,var
 	asm add sum,ax
-	asm inc c
+	asm inc i
 	asm loop find
 	avg=sum/len;
 	printf("Average: %f",avg);
