@@ -21,7 +21,5 @@ void main()
 	asm jnz find
 	
 	asm mov gcd,ax
-printf("\n GCD For two given nos. is : %d",gcd);
-	lcm = (num1*num2)/gcd;
-	printf("\n LCM For two given nos. is : %d",lcm);
+	printf("\n GCD For two given nos. is : %d",gcd);
 }
