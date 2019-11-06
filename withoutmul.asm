@@ -1,101 +1,124 @@
-data segment
+Data Segment
+	msg db 10,13, "Multiplication Without Instruction $"
+	msg1 db 10,13, "Enter First Number: $"
+	num1 db ?
+	msg2 db 10,13, "Enter Second Number: $"
+	num2 db ?
+	msg3 db 10,13, "Product is: $"
+	product dw ?
+Data Ends
+Code Segment
 
-msg1 db 10,13, "Enter the number: $"
-msg2 db 10,13, "The result is: $"
+	Assume CS: Code, DS: Data
 
-result dw ?
-num1 db ?
-num2 db ?
+	start:
 
-data ends
+		mov ax, data
+		mov ds, ax
 
+		mov dx, offset msg
+		mov ah, 09h
+		int 21h
 
-code segment
+		mov dx, offset msg1
+		mov ah, 09h
+		int 21h
 
-assume cs:code, ds:data
-start:
+		mov ah, 01h
+		int 21h
+		Call input
+		mov bl, al
+		rol bl, 04h
 
-mov ax,data
-mov ds, ax
- 
-    call input  
-    mov num1, bl
-    
-    call input
-    mov num2, bl
+		mov ah, 01h
+		int 21h
+		Call input
+		add bl, al
 
-    mov ah, 00h
-    mov al,num1
-    mov cl,num2
-    mov bx, 0000h
+		mov num1, bl
 
-    A:                      
-        add bx, ax
-        loop A
+		mov dx, offset msg2
+		mov ah, 09h
+		int 21h
 
-    mov result, bx
-    mov dx, offset msg2     ;Outputing result
-    mov ah, 09h
-    int 21h 
-        
-    mov bx, result
-    and bx,0F000h         ;First digit
-    ror bx, 0Ch 
-    call output
-        
-    mov bx, result
-    and bx,0F00h         ;Second digit
-    ror bx, 08h 
-    call output
-        
-    mov bx, result
-    and bx,00F0h         ;Third digit
-    ror bx, 04h 
-    call output
-        
-    mov bx, result
-    and bx,000Fh         ;Fourth digit
-    call output       
-    
-    mov ah, 4ch
-    int 21h
-        
-input proc                      ;Takes a 8 bit number as input and stores the 8 bit number in bl
+		mov ah, 01h
+		int 21h
+		Call input
+		mov bl, al
+		rol bl, 04h
 
-    mov dx, offset msg1 
-    mov ah, 09h
-    int 21h    
-    call getdigits
-    mov bl,al           
-    rol bl, 04h
-    call getdigits
-    add bl,al 
+		mov ah, 01h
+		int 21h
+		Call input
+		add bl, al
 
-ret
-endp
+		mov num2, bl
 
+		mov ax, 0000h
+		mov bx, 0000h
+		mov bl, num1
+		mov cl, num2
+		mov ch, 00h
+		
 
-getdigits proc
-    mov ah, 01h
-    int 21h
-    cmp al, 41h
-    jc X
-    sub al, 07h
-    X:  sub al, 30h
-ret
-endp
+		Addition:
 
-output proc                    ;Outputs a 8 bit number stored in bl
-    cmp bl, 0Ah
-    jc Y
-    add bl, 07h
-    Y:  
-    add bl, 30h
-    mov dl, bl
-    mov ah, 02h
-    int 21h
-ret 
-endp
+			add ax, bx
 
-code ends
-end start
+			loop Addition
+
+		mov bx, ax
+		mov product, bx
+		mov dx, offset msg3
+		mov ah, 09h
+		int 21h
+
+		mov bx, product
+		and bx, 0f000h
+		ror bx, 0ch
+		Call output
+
+		mov bx, product
+		and bx, 0f00h
+		ror bx, 08h
+		Call output
+
+		mov bx, product
+		and bx, 0f0h
+		ror bx, 04h
+		Call output
+
+		mov bx, product
+		and bx, 0fh
+		Call output		
+
+		mov ah, 4ch
+		int 21h	
+
+		input proc
+			cmp al, 41h
+			jc Inp
+			sub al, 07h
+
+			Inp:
+				sub al, 30h
+
+			ret
+			endp
+
+		output proc
+			cmp bl, 0ah
+			jc Outp
+			add bl, 07h
+
+			Outp:
+				add bl, 30h
+
+			mov dl, bl
+			mov ah, 02h
+			int 21h
+
+			ret
+			endp
+Code Ends
+	end start
